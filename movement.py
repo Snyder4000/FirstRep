@@ -5,10 +5,14 @@ from geometry_msgs.msg import Twist
 from nav_msgs.msg import Odometry
 from sensor_msgs.msg import LaserScan
 
-pose = 1.0
+pose = 0.0
 
 class laserread:
-        
+        angleIncrement = 0
+        desiredIndex = 0
+        forwardIndex = 0
+        currentRange = 1.0
+        maxRan = 8.0
         def __init__(self):
                 self.FirstValue=0
                 self.maxRan = 8.0
@@ -24,7 +28,7 @@ class laserread:
 
         def callback(self, data):
             #rospy.loginfo(rospy.get_caller_id() + "The First Value is " + str(data.ranges[FirstValue]))
-            forwardIndex = 333 #len(data.ranges)/2
+            forwardIndex = int(len(data.ranges)/2)
             maxRan = data.range_max
             currentRange = data.ranges[forwardIndex]
             angleIncrement = data.angle_increment
@@ -36,24 +40,21 @@ class laserread:
 def odomcallback(odom_data):
     #start callback for the odometer
     pose = odom_data.pose.pose.position.x
-    print "The odometer is at x = " + str(odom_data.pose.pose.position.x)
+    #print "The odometer is at x = " + str(odom_data.pose.pose.position.x)
 
 def go_forward():
 	pub = rospy.Publisher("/robot0/cmd_vel", Twist, queue_size = 10)
         rospy.Subscriber("/robot0/odom", Odometry, odomcallback)
-        tempL = laserread()
+        laserread()
 	rospy.init_node("Controller", anonymous=True)
 	rate = rospy.Rate(10)
-        #pose = 0
-        #print "globabl variable pose is: " + str(pose)
         twistCmd = Twist();
         
 	while pose < 4:
-                print "globabl variable pose is: " + str(pose)
-                twistCmd = Twist();
-                #turn = tempL.desiredIndex - tempL.forwardIndex
-                twistCmd.linear.x = .5
-		twistCmd.angular.z = 1   #turn * tempL.angleIncrement
+                #print "globabl variable pose is: " + str(pose)
+                turn = laserread.desiredIndex - laserread.forwardIndex
+                twistCmd.linear.x = laserread.currentRange / laserread.maxRan
+		twistCmd.angular.z = turn * laserread.angleIncrement
 		pub.publish(twistCmd)
 		rate.sleep()
        
