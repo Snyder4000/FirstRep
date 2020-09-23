@@ -19,6 +19,8 @@ class laserread:
                 self.halfCount = self.counter/2
                 self.desiredIndex = self.point - self.halfCount
                 self.angleIncrement = 0
+                self.point2 = 0
+                self.counter2 = 0
                 #rospy.init_node("Laser_listerner", anonymous=False)
                 rospy.Subscriber("/robot0/laser_0", LaserScan, self.callback)
 
@@ -33,6 +35,13 @@ class laserread:
 		if data.ranges[i] == data.range_max:
                    point = i
                    counter = counter + 1
+                elif data.ranges[i] < data.range_max:
+                   if counter > counter2:
+                      counter2 = counter
+                      point2 = point
+                      counter = 0
+                else:
+                 
             
 def odomcallback(odom_data):
     #start callback for the odometer
