@@ -61,10 +61,16 @@ def go_forward():
         twistCmd.angular.z = 0
         pub.publish(twistCmd)
         rate.sleep()
-        
-        turn = myL.desiredIndex - myL.forwardIndex
-        twistCmd.linear.x = myL.currentRange / myL.maxRan
-        twistCmd.angular.z = turn * myL.angleIncrement
+
+        while :
+         turn = myL.desiredIndex - myL.forwardIndex
+         twistCmd.linear.x = myL.currentRange / myL.maxRan
+         twistCmd.angular.z = turn * myL.angleIncrement
+         pub.publish(twistCmd)
+         rate.sleep()
+
+        twistCmd.linear.x = 0
+        twistCmd.angular.z = 0
         pub.publish(twistCmd)
         rate.sleep()
 
