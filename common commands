@@ -1,0 +1,1 @@
+roslaunch Home/ROBOT_CLASS/src/stdr_simulator/stdr_launchers/launch/server_with_map_and_gui_plus_robot.launch
