@@ -1,3 +1,4 @@
+
 #!/usr/bin/env python
 
 import rospy
@@ -10,7 +11,6 @@ pose = 0.0
 class laserread:
         
         def __init__(self):
-                self.FirstValue=0
                 self.maxRan = 8.0
                 self.currentRange = 1.0
                 self.forwardIndex = 333
@@ -21,27 +21,36 @@ class laserread:
                 self.angleIncrement = 0
                 self.point2 = 0
                 self.counter2 = 0
+                self.rightInd = 0
+                self.leftInd = 0
+                self.forwardScan = 0
                 #rospy.init_node("Laser_listerner", anonymous=False)
                 rospy.Subscriber("/robot0/laser_0", LaserScan, self.callback)
 
-        def callback(self, data):
-            #rospy.loginfo(rospy.get_caller_id() + "The First Value is " + str(data.ranges[FirstValue]))
-            print "LaserRead class, callback() function being called"
-            forwardIndex = int(len(data.ranges)/2)
-            maxRan = data.range_max
-            currentRange = data.ranges[forwardIndex]
-            angleIncrement = data.angle_increment
-            for i in range(0, len(data.ranges)):
-		if data.ranges[i] == data.range_max:
-                   point = i
-                   counter = counter + 1
-                elif data.ranges[i] < data.range_max:
-                   if counter > counter2:
-                      counter2 = counter
-                      point2 = point
-                      counter = 0
-                else:
-                 
+        def fScan():
+           for x in range(leftInd, (rightInd + 1)):
+               forwardScan[x] = data.ranges[x]
+            
+            
+        def callback(self, data):         
+           #print "LaserRead class, callback() function being called"
+           forwardIndex = int(len(data.ranges)/2)
+           maxRan = data.range_max
+           currentRange = data.ranges[forwardIndex]
+           angleIncrement = data.angle_increment
+           rightInd = int(((((-90 * 3.14) / 180) - data.angle_min) / data.angle_increment))
+           leftInd = int(((((90 * 3.14) / 180) - data.angle_min) / data.angle_increment))
+           for i in range(0, len(data.ranges)):
+	       if data.ranges[i] == data.range_max:
+                  point = i
+                  counter = counter + 1
+               #elif data.ranges[i] < data.range_max:
+                   #if counter > counter2:
+                      #counter2 = counter
+                      #point2 = point
+                      #counter = 0
+                #else:
+                 #pass
             
 def odomcallback(odom_data):
     #start callback for the odometer
@@ -57,8 +66,7 @@ def go_forward():
 	rospy.init_node("Controller", anonymous=True)
 	rate = rospy.Rate(10)
         twistCmd = Twist();
-        print "Laser reader class variable maxRan is: " + str(myL.maxRan)
-	while pose < 4:
+	while pose < 3:
                 #print "globabl variable pose is: " + str(pose)
                 
                 twistCmd.linear.x = myL.currentRange / myL.maxRan
@@ -71,17 +79,17 @@ def go_forward():
         pub.publish(twistCmd)
         rate.sleep()
 
-        while :
-         turn = myL.desiredIndex - myL.forwardIndex
-         twistCmd.linear.x = myL.currentRange / myL.maxRan
-         twistCmd.angular.z = turn * myL.angleIncrement
-         pub.publish(twistCmd)
-         rate.sleep()
+        #while :
+         #turn = myL.desiredIndex - myL.forwardIndex
+         #twistCmd.linear.x = myL.currentRange / myL.maxRan
+         #twistCmd.angular.z = turn * myL.angleIncrement
+         #pub.publish(twistCmd)
+         #rate.sleep()
 
-        twistCmd.linear.x = 0
-        twistCmd.angular.z = 0
-        pub.publish(twistCmd)
-        rate.sleep()
+        #twistCmd.linear.x = 0
+        #twistCmd.angular.z = 0
+        #pub.publish(twistCmd)
+        #rate.sleep()
 
 if __name__ == '__main__':
 	try:
