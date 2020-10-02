@@ -1,6 +1,6 @@
 
 #!/usr/bin/env python
-
+import math
 import rospy
 from geometry_msgs.msg import Twist
 from nav_msgs.msg import Odometry
@@ -23,23 +23,41 @@ class laserread:
                 self.counter2 = 0
                 self.rightInd = 0
                 self.leftInd = 0
-                self.forwardScan = 0
+                self.forwardScan = []
+                self.data = []
+                self.ranges = []
                 #rospy.init_node("Laser_listerner", anonymous=False)
                 rospy.Subscriber("/robot0/laser_0", LaserScan, self.callback)
 
-        def fScan():
-           for x in range(leftInd, (rightInd + 1)):
-               forwardScan[x] = data.ranges[x]
+        def scanResults(self):
+           #print "Forward scan has been called"
+           #print self.rightInd
+           #print self.leftInd
+           for x in range(self.rightInd, self.leftInd):
+               #print self.data.ranges[x]
+               if self.data.ranges[x] < .3:  
+                 return True
+           return False
             
-            
-        def callback(self, data):         
-           #print "LaserRead class, callback() function being called"
-           forwardIndex = int(len(data.ranges)/2)
-           maxRan = data.range_max
-           currentRange = data.ranges[forwardIndex]
-           angleIncrement = data.angle_increment
-           rightInd = int(((((-90 * 3.14) / 180) - data.angle_min) / data.angle_increment))
-           leftInd = int(((((90 * 3.14) / 180) - data.angle_min) / data.angle_increment))
+        def callback(self, data):
+           print "LaserRead class, callback() function being called"
+
+           for x in range(0,len(data.ranges)):
+             self.ranges.append(0)
+             self.ranges[x] = data.ranges[x]
+             if math.isinf(data.ranges[x]):
+               self.ranges[x] = data.range_max
+           self.data = data         
+           self.forwardIndex = int(len(data.ranges)/2)
+           #print self.forwardIndex
+           self.maxRan = data.range_max
+           self.currentRange = self.ranges[self.forwardIndex]
+           self.angleIncrement = data.angle_increment
+           self.rightInd = int(((((-90 * 3.14) / 180) - data.angle_min) / data.angle_increment))
+           self.leftInd = int(((((90 * 3.14) / 180) - data.angle_min) / data.angle_increment))
+           #print self.rightInd
+           #print self.leftInd
+           
            for i in range(0, len(data.ranges)):
 	       if data.ranges[i] == data.range_max:
                   point = i
@@ -60,36 +78,42 @@ def odomcallback(odom_data):
 
 def go_forward():
         global pose
+        stop = False
+        t = False
 	pub = rospy.Publisher("/robot0/cmd_vel", Twist, queue_size = 10)
         rospy.Subscriber("/robot0/odom", Odometry, odomcallback)
         myL = laserread()
 	rospy.init_node("Controller", anonymous=True)
 	rate = rospy.Rate(10)
         twistCmd = Twist();
-	while pose < 3:
-                #print "globabl variable pose is: " + str(pose)
-                
-                twistCmd.linear.x = myL.currentRange / myL.maxRan
-		twistCmd.angular.z = 0
-		pub.publish(twistCmd)
-		rate.sleep()
+	while not rospy.is_shutdown():
+           while t == False:
+              twistCmd.linear.x = myL.currentRange / myL.maxRan
+              print myL.currentRange
+              print myL.maxRan
+              twistCmd.angular.z = 0
+              pub.publish(twistCmd)
+              rate.sleep()
+              print "T = False, starting forward scan"
+              t = myL.scanResults()
+              print "T = False, scan has stopped"
 
-        twistCmd.linear.x = 0
-        twistCmd.angular.z = 0
-        pub.publish(twistCmd)
-        rate.sleep()
+           twistCmd.linear.x = 0
+           twistCmd.angular.z = 0
+           pub.publish(twistCmd)
+           rate.sleep()
 
-        #while :
-         #turn = myL.desiredIndex - myL.forwardIndex
-         #twistCmd.linear.x = myL.currentRange / myL.maxRan
-         #twistCmd.angular.z = turn * myL.angleIncrement
-         #pub.publish(twistCmd)
-         #rate.sleep()
+           while t == True:
+              turn = myL.desiredIndex - myL.forwardIndex
+              twistCmd.linear.x = 0
+              twistCmd.angular.z = turn * myL.angleIncrement
+              pub.publish(twistCmd)
+              rate.sleep()
+              print "T = True, starting forward scan"
+              t = myL.scanResults()
+              print "T = True while, stopping scan"
 
-        #twistCmd.linear.x = 0
-        #twistCmd.angular.z = 0
-        #pub.publish(twistCmd)
-        #rate.sleep()
+
 
 if __name__ == '__main__':
 	try:
