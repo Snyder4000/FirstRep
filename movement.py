@@ -25,6 +25,8 @@ class laserread:
                 self.leftInd = 0
                 self.left45 = 0
                 self.right45 = 0
+                self.avgRt = 0.0
+                self.avgLt = 0.0
                 self.forwardScan = []
                 self.data = []
                 self.ranges = []
@@ -40,7 +42,17 @@ class laserread:
                if self.data.ranges[x] < .3:  
                  return True
            return False
-            
+        
+        def wallLeft(self):
+            x1 = self.ranges[self.left45]
+            x2 = self.ranges[leftInd]
+            avgLt = (x1 + x2) / 2
+        
+        def wallRight(self:
+            x1 = self.ranges[self.right45]
+            x2 = self.ranges[rightInd]
+            avgRt = (x1 + x2) / 2
+
         def callback(self, data):
            #print "LaserRead class, callback() function being called"
 
