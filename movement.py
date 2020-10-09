@@ -146,9 +146,17 @@ def go_forward():
               #pub.publish(twistCmd)
               #rate.sleep()
            #elif myL.ranges[myL.leftInd] < .75:#This block will be following a wall on the left side 
-             #pass
+             #myL.wallLeft()
+             #twistCmd.linear.x = myL.currentRange / myL.maxRan
+             #twistCmd.angular.z = avgLt - 5.5
+             #pub.publish(twistCmd)
+             #rate.sleep()
            #elif myL.ranges[myL.rightInd] < .75:#This block will be following a wall on the right side
-             #pass
+             #myL.wallRight()
+             #twistCmd.linear.x = myL.currentRange / myL.maxRan
+             #twistCmd.angular.z = avgLt - 5.5
+             #pub.publish(twistCmd)
+             #rate.sleep()
            #else: #This should be Safe Wander code
              #twistCmd.linear.x = myL.currentRange / myL.maxRan
              #twistCmd.angular.z = 0
