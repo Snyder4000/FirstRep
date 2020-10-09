@@ -124,6 +124,7 @@ def go_forward():
            rate.sleep()
 
            while t == True:
+              myL.fullScan()
               turn = myL.desiredIndex - myL.forwardIndex
               twistCmd.linear.x = 0
               twistCmd.angular.z = turn * myL.angleIncrement
@@ -131,28 +132,28 @@ def go_forward():
               rate.sleep()
               t = myL.scanResults()
 
-           if myL.ranges[myL.forwardIndex] < .3:
+           #if myL.currentRange < .3:
               #Stop the robot
-              twistCmd.linear.x = 0
-              twistCmd.angular.z = 0
-              pub.publish(twistCmd)
-              rate.sleep()
+              #twistCmd.linear.x = 0
+              #twistCmd.angular.z = 0
+              #pub.publish(twistCmd)
+              #rate.sleep()
               #Run a scan that finds the biggest open area and turns the robot towards the middle of that area
-              myL.fullScan()
-              turn = myL.desiredIndex - myL.forwardIndex
-              twistCmd.linear.x = 0
-              twistCmd.angular.z = turn * myL.angleIncrement
-              pub.publish(twistCmd)
-              rate.sleep()
-           elif myL.ranges[myL.leftInd] < .75:#This block will be following a wall on the left side 
-             pass
-           elif myL.ranges[myL.rightInd] < .75:#This block will be following a wall on the right side
-             pass
-           else: #This should be Safe Wander code
-             twistCmd.linear.x = myL.currentRange / myL.maxRan
-             twistCmd.angular.z = 0
-             pub.publish(twistCmd)
-             rate.sleep()
+              #myL.fullScan()
+              #turn = myL.desiredIndex - myL.forwardIndex
+              #twistCmd.linear.x = 0
+              #twistCmd.angular.z = turn * myL.angleIncrement
+              #pub.publish(twistCmd)
+              #rate.sleep()
+           #elif myL.ranges[myL.leftInd] < .75:#This block will be following a wall on the left side 
+             #pass
+           #elif myL.ranges[myL.rightInd] < .75:#This block will be following a wall on the right side
+             #pass
+           #else: #This should be Safe Wander code
+             #twistCmd.linear.x = myL.currentRange / myL.maxRan
+             #twistCmd.angular.z = 0
+             #pub.publish(twistCmd)
+             #rate.sleep()
 
 
 
