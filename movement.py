@@ -23,6 +23,8 @@ class laserread:
                 self.counter2 = 0
                 self.rightInd = 0
                 self.leftInd = 0
+                self.left45 = 0
+                self.right45 = 0
                 self.forwardScan = []
                 self.data = []
                 self.ranges = []
@@ -40,7 +42,7 @@ class laserread:
            return False
             
         def callback(self, data):
-           print "LaserRead class, callback() function being called"
+           #print "LaserRead class, callback() function being called"
 
            for x in range(0,len(data.ranges)):
              self.ranges.append(0)
@@ -49,15 +51,15 @@ class laserread:
                self.ranges[x] = data.range_max
            self.data = data         
            self.forwardIndex = int(len(data.ranges)/2)
-           #print self.forwardIndex
            self.maxRan = data.range_max
            self.currentRange = self.ranges[self.forwardIndex]
            self.angleIncrement = data.angle_increment
            self.rightInd = int(((((-90 * 3.14) / 180) - data.angle_min) / data.angle_increment))
            self.leftInd = int(((((90 * 3.14) / 180) - data.angle_min) / data.angle_increment))
-           #print self.rightInd
-           #print self.leftInd
-           
+           self.right45 = int(((((-45 * 3.14) / 180) - data.angle_min) / data.angle_increment))
+           self.left45 = int(((((45 * 3.14) / 180) - data.angle_min) / data.angle_increment))
+           self.halfCount = self.counter/2
+           self.desiredIndex = self.point - self.halfCount
            for i in range(0, len(data.ranges)):
 	       if data.ranges[i] == data.range_max:
                   point = i
@@ -89,14 +91,10 @@ def go_forward():
 	while not rospy.is_shutdown():
            while t == False:
               twistCmd.linear.x = myL.currentRange / myL.maxRan
-              print myL.currentRange
-              print myL.maxRan
               twistCmd.angular.z = 0
               pub.publish(twistCmd)
               rate.sleep()
-              print "T = False, starting forward scan"
               t = myL.scanResults()
-              print "T = False, scan has stopped"
 
            twistCmd.linear.x = 0
            twistCmd.angular.z = 0
@@ -109,9 +107,7 @@ def go_forward():
               twistCmd.angular.z = turn * myL.angleIncrement
               pub.publish(twistCmd)
               rate.sleep()
-              print "T = True, starting forward scan"
               t = myL.scanResults()
-              print "T = True while, stopping scan"
 
 
 
