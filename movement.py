@@ -58,7 +58,7 @@ class laserread:
                if self.ranges[i] == self.maxRan:
                   self.point = i
                   self.counter = self.counter + 1
-               elif self.ranges[i] < self.maxRan and self.counter2 <= self.count:
+               elif self.ranges[i] < self.maxRan and self.counter2 <= self.counter:
                   self.counter2 = self.counter
                   self.point2 = self.point
                   self.counter = 0
@@ -82,10 +82,10 @@ class laserread:
            self.left45 = int(((((45 * 3.14) / 180) - data.angle_min) / data.angle_increment))
            self.halfCount = self.counter2/2
            self.desiredIndex = self.point2 - self.halfCount
-           for i in range(0, len(data.ranges)):
-	       if data.ranges[i] == data.range_max:
-                  point = i
-                  counter = counter + 1
+           #for i in range(0, len(data.ranges)):
+	       #if data.ranges[i] == data.range_max:
+                  #point = i
+                  #counter = counter + 1
                #elif data.ranges[i] < data.range_max:
                    #if counter > counter2:
                       #counter2 = counter
@@ -130,6 +130,29 @@ def go_forward():
               pub.publish(twistCmd)
               rate.sleep()
               t = myL.scanResults()
+
+           if myL.ranges[myL.forwardIndex] < .3:
+              #Stop the robot
+              twistCmd.linear.x = 0
+              twistCmd.angular.z = 0
+              pub.publish(twistCmd)
+              rate.sleep()
+              #Run a scan that finds the biggest open area and turns the robot towards the middle of that area
+              myL.fullScan()
+              turn = myL.desiredIndex - myL.forwardIndex
+              twistCmd.linear.x = 0
+              twistCmd.angular.z = turn * myL.angleIncrement
+              pub.publish(twistCmd)
+              rate.sleep()
+           elif myL.ranges[myL.leftInd] < .75:#This block will be following a wall on the left side 
+             pass
+           elif myL.ranges[myL.rightInd] < .75:#This block will be following a wall on the right side
+             pass
+           else: #This should be Safe Wander code
+             twistCmd.linear.x = myL.currentRange / myL.maxRan
+             twistCmd.angular.z = 0
+             pub.publish(twistCmd)
+             rate.sleep()
 
 
 
