@@ -48,11 +48,21 @@ class laserread:
             x2 = self.ranges[leftInd]
             avgLt = (x1 + x2) / 2
         
-        def wallRight(self:
+        def wallRight(self):
             x1 = self.ranges[self.right45]
             x2 = self.ranges[rightInd]
             avgRt = (x1 + x2) / 2
 
+        def fullScan(self):
+            for i in range(0, len(self.ranges)):
+               if self.ranges[i] == self.maxRan:
+                  self.point = i
+                  self.counter = self.counter + 1
+               elif self.ranges[i] < self.maxRan and self.counter2 <= self.count:
+                  self.counter2 = self.counter
+                  self.point2 = self.point
+                  self.counter = 0
+        
         def callback(self, data):
            #print "LaserRead class, callback() function being called"
 
