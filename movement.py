@@ -80,8 +80,8 @@ class laserread:
            self.leftInd = int(((((90 * 3.14) / 180) - data.angle_min) / data.angle_increment))
            self.right45 = int(((((-45 * 3.14) / 180) - data.angle_min) / data.angle_increment))
            self.left45 = int(((((45 * 3.14) / 180) - data.angle_min) / data.angle_increment))
-           self.halfCount = self.counter/2
-           self.desiredIndex = self.point - self.halfCount
+           self.halfCount = self.counter2/2
+           self.desiredIndex = self.point2 - self.halfCount
            for i in range(0, len(data.ranges)):
 	       if data.ranges[i] == data.range_max:
                   point = i
